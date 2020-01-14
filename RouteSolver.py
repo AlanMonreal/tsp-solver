@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
-import quiken
 import arcgis
 import error
 # Exception imports
 from os import getenv
 from urllib.parse import urlparse
+from math import radians, sin, cos, atan2, sqrt
 
 
 class NextMove():
@@ -32,35 +32,11 @@ class RouteSolver:
             'key': getenv('GOOGLE_API_KEY')
         }
 
-    def run(self):
-        try:
-            self.geocode()
-            self.generate_routes()
-        except:
-            errPayload = error.handleError()
-
-    def geocode(self):
-        user = quiken.get_user(self.db)
-        addresses = quiken.get_addresses(self.db, user)
-        if addresses:
-            arcgis.geocode_func(addresses, self.googleConfig['geocodeUrl'],
-                                self.googleConfig['key'])
-            quiken.set_coordinates(self.db, addresses)
-
-    def generate_routes(self):
-        units = quiken.get_units(self.db)
-        user = quiken.get_user(self.db)
-        quiken.deactivate_unit(self.db, user)
-        orders = quiken.get_orders(self.db, user)
-        base_locations = quiken.get_bases(self.db)
-        routes = self.solve_routes(orders, units, base_locations)
-        del orders
-        del units
-        del base_locations
-        if routes:
-            quiken.delete_from_route(self.db, user)
-            quiken.set_route(self.db, routes)
-        del user
+    def run(self, places):
+        matrix = self.get_distance_matrix(places)
+        for i in matrix:
+            print(i)
+        # routes = self.solve_routes(orders, units, base_locations)
 
     def solve_routes(self, coordinates, units, base_location):
         print('solving {} routes'.format(len(coordinates)))
@@ -68,15 +44,27 @@ class RouteSolver:
                                     coordinates, units, base_location)
         return routes
 
-    def set_unit_active(self, token):
-        unit = quiken.user_from_token(self.db, token)
-        response = quiken.set_active(self.db, unit)
-        return response
+    def get_distance(o_lat, o_lng, d_lat, d_lng):
+        E_RAD = 6371e3
+        r_o_lat = radians(o_lat)
+        r_d_lat = radians(d_lat)
+        delta_lat = radians(d_lat - o_lat)
+        delta_lng = radians(d_lng - o_lng)
+        a = ((sin(delta_lat / 2) * sin(delta_lat / 2)) + cos(r_o_lat) *
+             cos(r_d_lat) * (sin(delta_lng / 2) * sin(delta_lng / 2)))
+        c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        d = E_RAD * c
+        return d
 
-    def validate_token(self, token):
-        user = quiken.is_valid(self.db, token)
-        return quiken.hasUnit(self.db, user) if user else False
-        # if user is not False:
-        #     return quiken.hasUnit(self.db, user)
-        # else:
-        #     return False
+    def get_distance_matrix(self, places):
+        mtx = [[] for p in places]
+        for plc in places:
+            e_lat = places[plc]['lat']
+            e_lng = places[plc]['lng']
+            for i, p in enumerate(places):
+                lng = places[p]['lat']
+                lat = places[p]['lng']
+                if e_lat == lat and e_lng == lng:
+                    mtx[i].append(99999999)
+                mtx[i].append(self.get_distance(e_lat, e_lng, lat, lng))
+        return mtx

@@ -11,23 +11,20 @@ PORT = '8000'
 
 class ReqHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        qs = parse_qs(urlparse(self.path).query)
-        token = qs['token'] if 'token' in qs else None
         payload = loads(self.rfile.read(int(self.headers['Content-Length'])))
-        print(token)
         print(payload)
 
-        # rs = RouteSolver.RouteSolver()
-        # t1 = perf_counter()
-        # has_unit = rs.validate_token(token)
-        # if has_unit:
-        #     activated = rs.set_unit_active(token)
-        #     rs.run()
+        rs = RouteSolver.RouteSolver()
+        t1 = perf_counter()
+        places = payload['places'] if 'places' in payload else None
+        if places:
+            print('has places')
+            rs.run(places)
         #     response = 'ok'
         # else:
         #     response = 'no-token'
-        # t2 = perf_counter()
-        # print('Finished in', t2-t1, 'seconds')
+        t2 = perf_counter()
+        print('Finished in', t2 - t1, 'seconds')
         response = 'ok'
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
