@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from urllib.parse import parse_qs, urlparse
+from os import getenv
+from json import dumps, loads
+from time import perf_counter
+import RouteSolver
+
+PORT = '8000'
+
+
+class ReqHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        qs = parse_qs(urlparse(self.path).query)
+        token = qs['token'] if 'token' in qs else None
+        payload = loads(self.rfile.read(int(self.headers['Content-Length'])))
+        print(token)
+        print(payload)
+
+        # rs = RouteSolver.RouteSolver()
+        # t1 = perf_counter()
+        # has_unit = rs.validate_token(token)
+        # if has_unit:
+        #     activated = rs.set_unit_active(token)
+        #     rs.run()
+        #     response = 'ok'
+        # else:
+        #     response = 'no-token'
+        # t2 = perf_counter()
+        # print('Finished in', t2-t1, 'seconds')
+        response = 'ok'
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+        payload = {'response': response}
+        self.wfile.write(dumps(payload).encode())
+
+
+if __name__ == '__main__':
+    try:
+        PORT = getenv('PORT', PORT)
+        with HTTPServer(('', int(PORT)), ReqHandler) as httpd:
+            print('Started server on port', PORT)
+            httpd.serve_forever()
+    except KeyboardInterrupt:
+        pass

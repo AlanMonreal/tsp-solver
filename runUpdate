@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+from os import getenv
+import RouteSolver
+from time import perf_counter
+
+if __name__ == '__main__':
+    try:
+        #PORT = getenv('PORT', PORT)
+        # TODO: set run entries (time unit? manual trigger?)
+        print('Generating routes for orders')
+        t1 = perf_counter()
+        rs = RouteSolver.RouteSolver()
+        rs.run()
+        t2 = perf_counter()
+        print('Finished in', t2-t1, 'seconds')
+    except KeyboardInterrupt:
+        pass
