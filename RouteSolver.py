@@ -59,12 +59,12 @@ class RouteSolver:
 
     def get_distance_matrix(self, places):
         mtx = [[] for p in places]
-        for plc in places:
-            e_lat = places[plc]['lat']
-            e_lng = places[plc]['lng']
-            for i, p in enumerate(places):
-                lng = places[p]['lat']
-                lat = places[p]['lng']
+        for i, plc in enumerate(places):
+            e_lat = places[i]['lat']
+            e_lng = places[i]['lng']
+            for j, p in enumerate(places):
+                lng = places[j]['lat']
+                lat = places[j]['lng']
                 if e_lat == lat and e_lng == lng:
                     mtx[i].append(99999999)
                 mtx[i].append(self.get_distance(e_lat, e_lng, lat, lng))
