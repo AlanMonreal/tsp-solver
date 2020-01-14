@@ -17,20 +17,21 @@ class NextMove():
 
 class RouteSolver:
     def __init__(self):
-        dbvars = urlparse(getenv('DBSTRING'))
-        agId, agSecret = getenv('ARCGIS_AUTH').split(':')
-        self.db = {
-            'host': dbvars.hostname,
-            'user': dbvars.username,
-            'pass': dbvars.password,
-            'name': dbvars.path[1:]
-        }
-        self.googleConfig = {
-            'geocodeUrl': 'https://maps.googleapis.com/maps/api/geocode/json?',
-            'directionsApi': getenv('DIRECTIONS_API'),
-            'sourceCountry': 'MEX',
-            'key': getenv('GOOGLE_API_KEY')
-        }
+        dbvars = 1234
+        # dbvars = urlparse(getenv('DBSTRING'))
+        # agId, agSecret = getenv('ARCGIS_AUTH').split(':')
+        # self.db = {
+        #     'host': dbvars.hostname,
+        #     'user': dbvars.username,
+        #     'pass': dbvars.password,
+        #     'name': dbvars.path[1:]
+        # }
+        # self.googleConfig = {
+        #     'geocodeUrl': 'https://maps.googleapis.com/maps/api/geocode/json?',
+        #     'directionsApi': getenv('DIRECTIONS_API'),
+        #     'sourceCountry': 'MEX',
+        #     'key': getenv('GOOGLE_API_KEY')
+        # }
 
     def run(self, places):
         matrix = self.get_distance_matrix(places)
